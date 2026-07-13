@@ -12,6 +12,7 @@ LearningHub is a do-first learning hub, not a curriculum you read. It has four t
 | devops | One real application (`shiplog`) taken through the full lifecycle: git, containers, CI/CD, Kubernetes, IaC, GitOps, observability, chaos engineering. | [devops/](devops/) |
 | proxmox | The company Proxmox cluster (3+ nodes, real admin access) — templates, IaC, storage, HA, SDN, Kubernetes, monitoring, and a self-service private cloud. | [proxmox/](proxmox/) |
 | money | Eight AI-leveraged income experiments, ranked by speed to first dollar, run under a strict compliance floor. | [money/](money/) |
+| gamedev | Ship ten small commercial games across Godot, Unity, and web engines to Google Play, Steam, web portals, and itch.io — AI does 90-95%. | [gamedev/](gamedev/) |
 | capstones | Cross-track final projects that stitch the other three tracks together into one deployed, observable system. | [capstones/](capstones/) |
 
 ## How to use
@@ -72,6 +73,19 @@ LearningHub is a do-first learning hub, not a curriculum you read. It has four t
 - [ ] 06 pod-merch — [money/06-pod-merch/](money/06-pod-merch/)
 - [ ] 07 kdp-books — [money/07-kdp-books/](money/07-kdp-books/)
 - [ ] 08 seo-affiliate-site — [money/08-seo-affiliate-site/](money/08-seo-affiliate-site/)
+
+### gamedev
+
+- [ ] 01 Tap Tower — [gamedev/01-tap-tower/](gamedev/01-tap-tower/)
+- [ ] 02 Neon Runner — [gamedev/02-neon-runner/](gamedev/02-neon-runner/)
+- [ ] 03 Merge Critters — [gamedev/03-merge-critters/](gamedev/03-merge-critters/)
+- [ ] 04 Word Bloom — [gamedev/04-word-bloom/](gamedev/04-word-bloom/)
+- [ ] 05 Blockfall — [gamedev/05-blockfall/](gamedev/05-blockfall/)
+- [ ] 06 Dungeon Dash — [gamedev/06-dungeon-dash/](gamedev/06-dungeon-dash/)
+- [ ] 07 Idle Miner Co — [gamedev/07-idle-miner-co/](gamedev/07-idle-miner-co/)
+- [ ] 08 Tower Siege — [gamedev/08-tower-siege/](gamedev/08-tower-siege/)
+- [ ] 09 Card Forge — [gamedev/09-card-forge/](gamedev/09-card-forge/)
+- [ ] 10 Capstone: Pixel Quest — [gamedev/10-capstone-pixel-quest/](gamedev/10-capstone-pixel-quest/)
 
 ## Ground rules
 
