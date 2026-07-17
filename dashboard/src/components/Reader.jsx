@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { visit } from 'unist-util-visit';
-import { ArrowLeft, TerminalSquare, FolderOpen, FolderSymlink } from 'lucide-react';
+import { ArrowLeft, TerminalSquare, FolderOpen, FolderSymlink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAppState } from '../context/AppStateContext.jsx';
 import { startCommand } from '../lib/content.js';
 import { ProgressButton, StarButton } from './MissionCard.jsx';
@@ -99,14 +99,15 @@ function MarkdownDoc({ docId, content }) {
 }
 
 /** Full reading view for a mission (tabs) or a reference doc (single). */
-export default function Reader({ item, kind, initialTab, onBack }) {
+export default function Reader({ item, kind, initialTab, onBack, prevItem, nextItem, onOpenItem }) {
   const { toast, recordVisit } = useAppState();
   const isMission = kind === 'mission';
   const tabs = isMission ? item.docKeys : null;
   const [tab, setTab] = useState(initialTab && tabs?.includes(initialTab) ? initialTab : tabs?.[0]);
 
   useEffect(() => {
-    recordVisit(isMission ? item.id : item.id, tab);
+    recordVisit(item.id, tab);
+    window.scrollTo({ top: 0, behavior: 'auto' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id, tab]);
 
@@ -197,6 +198,42 @@ export default function Reader({ item, kind, initialTab, onBack }) {
         <span className="pointer-events-none absolute bottom-3 right-3 h-3 w-3 border-b-2 border-r-2 border-accent/50" aria-hidden />
         <MarkdownDoc key={docId} docId={docId} content={content} />
       </div>
+
+      {/* Prev / Next pager */}
+      {(prevItem || nextItem) && (
+        <nav className="mt-6 grid grid-cols-2 gap-3">
+          {prevItem ? (
+            <button
+              onClick={() => onOpenItem(prevItem)}
+              className="crop-marks group flex items-center gap-3 border border-bord bg-s1 px-4 py-3 text-left hover:border-accent hover:-translate-x-[2px] transition-all duration-200 cursor-pointer"
+              style={{ boxShadow: 'var(--card-shadow)' }}
+            >
+              <ChevronLeft size={18} className="flex-none text-tm group-hover:text-accent" />
+              <span className="min-w-0">
+                <span className="eyebrow block">Previous</span>
+                <span className="block truncate font-serif text-[15px] font-semibold text-tp">{prevItem.title}</span>
+              </span>
+            </button>
+          ) : (
+            <span />
+          )}
+          {nextItem ? (
+            <button
+              onClick={() => onOpenItem(nextItem)}
+              className="crop-marks group flex items-center justify-end gap-3 border border-bord bg-s1 px-4 py-3 text-right hover:border-accent hover:translate-x-[2px] transition-all duration-200 cursor-pointer"
+              style={{ boxShadow: 'var(--card-shadow)' }}
+            >
+              <span className="min-w-0">
+                <span className="eyebrow block">Next</span>
+                <span className="block truncate font-serif text-[15px] font-semibold text-tp">{nextItem.title}</span>
+              </span>
+              <ChevronRight size={18} className="flex-none text-tm group-hover:text-accent" />
+            </button>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )}
       <div className="h-16" />
     </div>
   );

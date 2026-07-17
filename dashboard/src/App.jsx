@@ -165,12 +165,12 @@ export default function App() {
     [recent],
   );
 
-  const readerItem =
-    reader?.kind === 'mission'
-      ? missions.find((m) => m.id === reader.id)
-      : reader?.kind === 'ref'
-        ? references.find((r) => r.id === reader.id)
-        : null;
+  const readerList = reader?.kind === 'ref' ? references : missions;
+  const readerItem = reader ? readerList.find((x) => x.id === reader.id) : null;
+  const readerIndex = readerItem ? readerList.findIndex((x) => x.id === readerItem.id) : -1;
+  const prevItem = readerIndex > 0 ? readerList[readerIndex - 1] : null;
+  const nextItem = readerIndex >= 0 && readerIndex < readerList.length - 1 ? readerList[readerIndex + 1] : null;
+  const openAdjacent = (it) => it && setReader({ kind: reader.kind, id: it.id });
 
   const grouped = sort === 'track' && !query;
 
@@ -219,6 +219,9 @@ export default function App() {
               kind={reader.kind}
               initialTab={reader.tab}
               onBack={() => setReader(null)}
+              prevItem={prevItem}
+              nextItem={nextItem}
+              onOpenItem={openAdjacent}
             />
           ) : view === 'missions' ? (
             <div className="view-enter" key={`missions-${status}-${track}-${sort}-${query}`}>
