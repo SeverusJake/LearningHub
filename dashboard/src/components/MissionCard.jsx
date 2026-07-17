@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { Star, Circle, CircleDotDashed, CheckCircle2 } from 'lucide-react';
 import { useAppState } from '../context/AppStateContext.jsx';
 
-function Skulls({ n }) {
+// Difficulty as a five-notch letterpress meter, not emoji.
+function LevelMeter({ n }) {
   if (!n) return null;
   return (
-    <span className="text-[12px] tracking-tight" title={`Difficulty ${n}/5`}>
-      {'💀'.repeat(n)}
+    <span className="flex items-center gap-[3px]" title={`Difficulty ${n}/5`} aria-label={`Difficulty ${n} of 5`}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span
+          key={i}
+          className="block h-[10px] w-[3px]"
+          style={{ backgroundColor: i <= n ? 'var(--accent)' : 'var(--rule)' }}
+        />
+      ))}
     </span>
   );
 }
@@ -28,9 +35,9 @@ export function ProgressButton({ missionId, compact = false }) {
         cycleProgress(missionId);
       }}
       title={`${label} — click to change`}
-      className={`flex items-center gap-1.5 rounded-full border border-bord px-2.5 py-1 text-[12px] hover:bg-s2 cursor-pointer ${cls}`}
+      className={`flex items-center gap-1.5 border border-bord px-2.5 py-1 mono text-[10px] uppercase tracking-[0.06em] hover:bg-s2 cursor-pointer ${cls}`}
     >
-      <Icon size={13} />
+      <Icon size={12} />
       {!compact && <span className="hidden xl:inline">{label}</span>}
     </button>
   );
@@ -75,61 +82,60 @@ export default function MissionCard({ mission, onOpen, compact = false }) {
           onOpen(mission);
         }
       }}
-      className="group cursor-pointer rounded-lg border border-bord bg-s1 transition-all duration-150 hover:translate-x-[2px] active:scale-[0.995]"
+      className="crop-marks group relative cursor-pointer border border-bord bg-s1 transition-all duration-200 hover:translate-x-[3px] active:scale-[0.997]"
       style={{
-        borderLeft: `4px solid ${mission.color}`,
         boxShadow: starred
-          ? `var(--card-shadow), 0 0 0 1px color-mix(in srgb, var(--star-gold) 35%, transparent)`
+          ? `var(--card-shadow), inset 2px 0 0 var(--star-gold)`
           : 'var(--card-shadow)',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = starred
-          ? `var(--card-shadow-hover), 0 0 0 1px color-mix(in srgb, var(--star-gold) 45%, transparent)`
+          ? `var(--card-shadow-hover), inset 2px 0 0 var(--star-gold)`
           : 'var(--card-shadow-hover)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = starred
-          ? `var(--card-shadow), 0 0 0 1px color-mix(in srgb, var(--star-gold) 35%, transparent)`
+          ? `var(--card-shadow), inset 2px 0 0 var(--star-gold)`
           : 'var(--card-shadow)';
       }}
     >
-      <div className={`flex items-center gap-4 ${compact ? 'px-4 py-2.5' : 'px-5 py-3.5'}`}>
-        {/* Track marker */}
-        <span
-          className="hidden h-2 w-2 flex-none rounded-full sm:block"
-          style={{ backgroundColor: mission.color }}
-          title={mission.trackLabel}
-        />
+      {/* Track spine */}
+      <span
+        className="absolute left-0 top-0 h-full w-[3px]"
+        style={{ backgroundColor: mission.color }}
+        title={mission.trackLabel}
+      />
+
+      <div className={`flex items-center gap-4 pl-6 pr-5 ${compact ? 'py-3' : 'py-4'}`}>
+        {/* Big index numeral — the ledger anchor */}
+        <span className="mono hidden w-9 flex-none text-[22px] font-semibold leading-none text-tm/70 sm:block group-hover:text-accent">
+          {mission.num}
+        </span>
 
         {/* Identity */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-[12px] font-medium tabular-nums text-tm">{mission.num}</span>
-            <h3 className="truncate text-[16px] font-semibold text-tp">{mission.title}</h3>
+          <h3 className="truncate font-serif text-[19px] font-semibold leading-tight tracking-[-0.005em] text-tp">
+            {mission.title}
+          </h3>
+          <div className="mt-1 flex items-center gap-2.5">
+            <span className="eyebrow truncate">{mission.path}</span>
           </div>
-          <p className="mt-0.5 truncate text-[11px] font-medium uppercase tracking-[0.05em] text-tm">
-            {mission.path}
-          </p>
           {!compact && (
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              <span className="rounded-full bg-s2 px-2 py-0.5 text-[11px] text-ts">{mission.trackLabel}</span>
-              {mission.engine && (
-                <span className="rounded-full bg-s2 px-2 py-0.5 text-[11px] text-ts">{mission.engine}</span>
-              )}
-              {mission.platform && (
-                <span className="hidden rounded-full bg-s2 px-2 py-0.5 text-[11px] text-ts md:inline">
-                  {mission.platform}
-                </span>
-              )}
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="mono text-[10.5px] uppercase tracking-[0.1em]" style={{ color: mission.color }}>
+                {mission.trackLabel}
+              </span>
+              {mission.engine && <span className="text-[11px] text-tm">· {mission.engine}</span>}
+              {mission.platform && <span className="hidden text-[11px] text-tm md:inline">· {mission.platform}</span>}
             </div>
           )}
         </div>
 
         {/* Facts + actions */}
-        <div className="flex flex-none items-center gap-3">
-          <div className="hidden flex-col items-end gap-0.5 sm:flex">
-            <Skulls n={mission.difficulty} />
-            {mission.timeline && <span className="text-[12px] text-tm">{mission.timeline}</span>}
+        <div className="flex flex-none items-center gap-4">
+          <div className="hidden flex-col items-end gap-1.5 sm:flex">
+            <LevelMeter n={mission.difficulty} />
+            {mission.timeline && <span className="mono text-[10.5px] text-tm">{mission.timeline}</span>}
           </div>
           <ProgressButton missionId={mission.id} compact={compact} />
           <StarButton missionId={mission.id} />

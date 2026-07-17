@@ -111,11 +111,11 @@ export default function Reader({ item, kind, initialTab, onBack }) {
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-lg border border-bord bg-s1 px-3 py-1.5 text-[13px] text-ts hover:bg-s2 hover:text-tp cursor-pointer"
+          className="mono flex items-center gap-1.5 border border-bord bg-s1 px-3 py-2 text-[10px] uppercase tracking-[0.06em] text-ts hover:bg-s2 hover:text-tp cursor-pointer"
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={13} /> Back
         </button>
-        <h1 className="min-w-0 flex-1 truncate text-[22px] font-semibold tracking-[-0.01em] text-tp">
+        <h1 className="min-w-0 flex-1 truncate font-serif text-[26px] font-semibold tracking-[-0.015em] text-tp">
           {item.title}
         </h1>
         {isMission && (
@@ -136,26 +136,28 @@ export default function Reader({ item, kind, initialTab, onBack }) {
                   toast(`Copied “${startCommand(item)}” — paste it in a Claude Code session`),
                 )
               }
-              className="flex items-center gap-1.5 rounded-lg border border-bord bg-s1 px-3 py-1.5 text-[12.5px] text-ts hover:border-accent hover:text-accent cursor-pointer"
+              className="mono flex items-center gap-1.5 border border-bord bg-s1 px-3 py-2 text-[10px] uppercase tracking-[0.05em] text-ts hover:border-accent hover:text-accent cursor-pointer"
             >
-              <TerminalSquare size={13} /> Copy start command
+              <TerminalSquare size={12} /> Copy start command
             </button>
             <button
               onClick={() => copyText(item.path).then(() => toast(`Copied path ${item.path}`))}
-              className="flex items-center gap-1.5 rounded-lg border border-bord bg-s1 px-3 py-1.5 text-[12.5px] text-ts hover:border-accent hover:text-accent cursor-pointer"
+              className="mono flex items-center gap-1.5 border border-bord bg-s1 px-3 py-2 text-[10px] uppercase tracking-[0.05em] text-ts hover:border-accent hover:text-accent cursor-pointer"
             >
-              <FolderOpen size={13} /> Copy folder path
+              <FolderOpen size={12} /> Copy folder path
             </button>
           </>
         )}
         {tabs && tabs.length > 1 && (
-          <div className="ml-auto flex gap-1 rounded-lg bg-s2 p-1">
-            {tabs.map((t) => (
+          <div className="ml-auto flex">
+            {tabs.map((t, i) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`rounded-md px-3 py-1 text-[12px] font-medium transition-all duration-200 cursor-pointer ${
-                  tab === t ? 'bg-s1 text-tp shadow-sm' : 'text-ts hover:text-tp'
+                className={`mono border px-3.5 py-2 text-[10px] uppercase tracking-[0.06em] transition-all duration-200 cursor-pointer ${
+                  i > 0 ? '-ml-px' : ''
+                } ${
+                  tab === t ? 'z-10 border-accent bg-accent text-s1' : 'border-bord text-ts hover:bg-s2 hover:text-tp'
                 }`}
               >
                 {t}
@@ -166,7 +168,15 @@ export default function Reader({ item, kind, initialTab, onBack }) {
       </div>
 
       {/* Document body on its own sheet of paper */}
-      <div className="rounded-xl border border-bord bg-s1 px-6 py-8 md:px-10" style={{ boxShadow: 'var(--card-shadow)' }}>
+      <div
+        className="relative border border-bord bg-s1 px-7 py-10 md:px-12"
+        style={{ boxShadow: 'var(--card-shadow-hover)' }}
+      >
+        {/* Registration corner marks */}
+        <span className="pointer-events-none absolute left-3 top-3 h-3 w-3 border-l-2 border-t-2 border-accent/50" aria-hidden />
+        <span className="pointer-events-none absolute right-3 top-3 h-3 w-3 border-r-2 border-t-2 border-accent/50" aria-hidden />
+        <span className="pointer-events-none absolute bottom-3 left-3 h-3 w-3 border-b-2 border-l-2 border-accent/50" aria-hidden />
+        <span className="pointer-events-none absolute bottom-3 right-3 h-3 w-3 border-b-2 border-r-2 border-accent/50" aria-hidden />
         <MarkdownDoc key={docId} docId={docId} content={content} />
       </div>
       <div className="h-16" />

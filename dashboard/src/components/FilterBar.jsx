@@ -14,21 +14,23 @@ const SORTS = [
 ];
 
 const selectCls =
-  'rounded-lg border border-bord bg-s1 px-3 py-1.5 text-[13px] text-tp cursor-pointer hover:bg-s2 focus:border-accent focus:outline-none';
+  'mono border border-bord bg-s1 px-3 py-2 text-[11px] uppercase tracking-[0.05em] text-ts cursor-pointer hover:bg-s2 focus:border-accent focus:outline-none';
 
 export default function FilterBar({ status, onStatus, track, onTrack, sort, onSort }) {
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2">
-      <div className="flex flex-wrap gap-1.5">
-        {STATUS_PILLS.map((p) => {
+    <div className="mb-7 flex flex-wrap items-center gap-2.5">
+      <div className="flex flex-wrap">
+        {STATUS_PILLS.map((p, i) => {
           const active = status === p.id;
           return (
             <button
               key={p.id}
               onClick={() => onStatus(p.id)}
-              className={`rounded-full border px-3.5 py-1.5 text-[13px] transition-all duration-200 cursor-pointer ${
+              className={`mono border px-3.5 py-2 text-[11px] uppercase tracking-[0.06em] transition-all duration-200 cursor-pointer ${
+                i > 0 ? '-ml-px' : ''
+              } ${
                 active
-                  ? 'border-accent bg-accent text-white'
+                  ? 'z-10 border-accent bg-accent text-s1'
                   : 'border-bord bg-transparent text-ts hover:bg-s2 hover:text-tp'
               }`}
             >

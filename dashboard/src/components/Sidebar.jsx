@@ -9,6 +9,8 @@ const NAV = [
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
+const idx = (i) => String(i + 1).padStart(2, '0');
+
 export function ThemeToggle({ withLabel = false }) {
   const { theme, toggleTheme } = useTheme();
   const dark = theme === 'dark';
@@ -43,17 +45,22 @@ export function ThemeToggle({ withLabel = false }) {
 
 export default function Sidebar({ view, onNavigate, mobileOpen, onCloseMobile }) {
   const inner = (expanded) => (
-    <div className="sidebar-texture flex h-full flex-col border-r border-bord bg-s1">
-      {/* Wordmark */}
-      <div className={`flex items-center gap-1 px-5 pb-6 pt-6 ${expanded ? '' : 'justify-center px-0'}`}>
-        <span className={`font-serif text-[26px] leading-none tracking-[-0.02em] text-tp ${expanded ? '' : 'hidden'}`}>
-          Atelier
-        </span>
-        <span className="mb-2 block h-[7px] w-[7px] rounded-full bg-accent" />
+    <div className="flex h-full flex-col border-r border-bord bg-s1">
+      {/* Wordmark — letterpress plate */}
+      <div className={`pb-7 pt-7 ${expanded ? 'px-6' : 'px-0 text-center'}`}>
+        <div className={`flex items-baseline ${expanded ? '' : 'justify-center'}`}>
+          <span className={`font-serif font-semibold leading-none text-tp ${expanded ? 'text-[30px] tracking-[-0.02em]' : 'text-[20px]'}`}>
+            {expanded ? 'Atelier' : 'A'}
+          </span>
+          <span className="ml-[3px] block h-[6px] w-[6px] rounded-full bg-accent" />
+        </div>
+        {expanded && <div className="eyebrow mt-2">Field Manual</div>}
       </div>
 
+      <div className={`mb-3 ${expanded ? 'mx-6' : 'mx-3'} rule-tick`} />
+
       <nav className="flex-1 space-y-0.5 px-3">
-        {NAV.map(({ id, label, icon: Icon }) => {
+        {NAV.map(({ id, label, icon: Icon }, i) => {
           const active = view === id;
           return (
             <button
@@ -62,27 +69,29 @@ export default function Sidebar({ view, onNavigate, mobileOpen, onCloseMobile })
                 onNavigate(id);
                 onCloseMobile?.();
               }}
-              className={`flex w-full items-center gap-3 rounded-r-lg py-2 text-[14px] cursor-pointer border-l-[3px] ${
-                expanded ? 'px-3' : 'justify-center px-0'
+              className={`group flex w-full items-center gap-3 py-2.5 text-[13.5px] cursor-pointer border-l-2 ${
+                expanded ? 'px-4' : 'justify-center px-0'
               } ${
                 active
-                  ? 'border-accent bg-accent/[0.07] font-medium text-tp'
+                  ? 'border-accent bg-accent/[0.06] font-semibold text-tp'
                   : 'border-transparent text-ts hover:bg-s2 hover:text-tp'
               }`}
               title={expanded ? undefined : label}
             >
-              <Icon size={17} className={active ? 'text-accent' : ''} />
-              {expanded && <span>{label}</span>}
+              {expanded && (
+                <span className={`mono text-[10px] ${active ? 'text-accent' : 'text-tm'}`}>{idx(i)}</span>
+              )}
+              <Icon size={16} className={active ? 'text-accent' : ''} />
+              {expanded && <span className="tracking-[0.01em]">{label}</span>}
             </button>
           );
         })}
       </nav>
 
-      <div className={`border-t border-bord px-3 py-3 ${expanded ? 'flex items-center justify-between' : 'flex flex-col items-center gap-2'}`}>
+      <div className={`mt-3 ${expanded ? 'mx-6' : 'mx-3'} rule-tick`} />
+      <div className={`px-3 py-4 ${expanded ? 'flex items-center justify-between' : 'flex flex-col items-center gap-2'}`}>
         <ThemeToggle withLabel={expanded} />
-        {expanded && (
-          <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-tm">v1.0</span>
-        )}
+        {expanded && <span className="eyebrow">v1.0</span>}
       </div>
     </div>
   );

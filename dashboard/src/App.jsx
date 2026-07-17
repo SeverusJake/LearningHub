@@ -19,21 +19,49 @@ const VIEW_TITLES = {
   settings: 'Settings',
 };
 
-function TrackSection({ track, items, onOpen }) {
+function TrackSection({ track, items, index, onOpen }) {
   const { progress } = useAppState();
   const done = items.filter((m) => progress[m.id] === 'done').length;
+  const pct = Math.round((done / items.length) * 100);
   return (
-    <section className="mb-9">
-      <div className="mb-3 flex items-baseline gap-3">
-        <h2 className="text-[15px] font-semibold text-tp">{track.label}</h2>
-        <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-tm">
-          {done}/{items.length} done
-        </span>
-        <span className="ml-auto h-px flex-1 bg-bord" />
+    <section className="relative mb-14">
+      {/* Ghosted chapter numeral bleeding behind the header */}
+      <span
+        className="pointer-events-none absolute -top-6 right-0 select-none font-serif text-[120px] font-semibold leading-none"
+        style={{ color: 'var(--ink-wash)' }}
+        aria-hidden
+      >
+        {String(index + 1).padStart(2, '0')}
+      </span>
+
+      <div className="relative mb-4">
+        <div className="mb-2 flex items-end gap-4">
+          <div>
+            <div className="eyebrow mb-1" style={{ color: track.color }}>
+              Chapter {String(index + 1).padStart(2, '0')}
+            </div>
+            <h2 className="font-serif text-[30px] font-semibold leading-none tracking-[-0.02em] text-tp">
+              {track.label}
+            </h2>
+          </div>
+          <span className="mono mb-1 ml-auto text-[11px] text-tm">
+            {done}/{items.length} complete · {pct}%
+          </span>
+        </div>
+        {/* Progress rule */}
+        <div className="relative h-[2px] w-full bg-rule">
+          <span
+            className="absolute left-0 top-0 h-full transition-all duration-500"
+            style={{ width: `${pct}%`, backgroundColor: track.color }}
+          />
+        </div>
       </div>
-      <div className="space-y-2.5">
-        {items.map((m) => (
-          <MissionCard key={m.id} mission={m} onOpen={onOpen} />
+
+      <div className="stagger space-y-2">
+        {items.map((m, i) => (
+          <div key={m.id} style={{ animationDelay: `${Math.min(i * 45, 400)}ms` }}>
+            <MissionCard mission={m} onOpen={onOpen} />
+          </div>
         ))}
       </div>
     </section>
@@ -45,22 +73,22 @@ function SettingsView() {
   const { resetData, toast } = useAppState();
   return (
     <div className="max-w-[640px] space-y-8">
-      <section className="rounded-xl border border-bord bg-s1 p-6" style={{ boxShadow: 'var(--card-shadow)' }}>
-        <h3 className="text-[16px] font-semibold text-tp">Appearance</h3>
+      <section className="border border-bord bg-s1 p-7 crop-marks" style={{ boxShadow: 'var(--card-shadow)' }}>
+        <h3 className="font-serif text-[20px] font-semibold text-tp">Appearance</h3>
         <p className="mt-1 text-[13px] text-ts">Theme follows you across sessions.</p>
         <div className="mt-4 flex items-center gap-4">
           <ThemeToggle withLabel />
           <div className="flex gap-1.5" aria-hidden>
             {[colors.bg, colors.surface, colors.surface2, colors.accent].map((c, i) => (
-              <span key={i} className="h-6 w-6 rounded-md border border-bord" style={{ backgroundColor: c }} />
+              <span key={i} className="h-7 w-7 border border-bord" style={{ backgroundColor: c }} />
             ))}
           </div>
           <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-tm">{theme} mode</span>
         </div>
       </section>
 
-      <section className="rounded-xl border border-bord bg-s1 p-6" style={{ boxShadow: 'var(--card-shadow)' }}>
-        <h3 className="text-[16px] font-semibold text-tp">Your data</h3>
+      <section className="border border-bord bg-s1 p-7 crop-marks" style={{ boxShadow: 'var(--card-shadow)' }}>
+        <h3 className="font-serif text-[20px] font-semibold text-tp">Your data</h3>
         <p className="mt-1 text-[13px] text-ts">
           Progress, stars, recents, and guide checklists live in this browser's localStorage. Resetting cannot be undone.
         </p>
@@ -69,14 +97,14 @@ function SettingsView() {
             resetData();
             toast('All local progress cleared');
           }}
-          className="mt-4 flex items-center gap-1.5 rounded-lg border border-danger/40 px-3 py-1.5 text-[13px] text-danger hover:bg-danger/10 cursor-pointer"
+          className="mt-4 flex items-center gap-1.5 border border-danger/40 px-3 py-2 mono text-[10px] uppercase tracking-[0.06em] text-danger hover:bg-danger/10 cursor-pointer"
         >
           <RotateCcw size={13} /> Reset progress data
         </button>
       </section>
 
-      <section className="rounded-xl border border-bord bg-s1 p-6" style={{ boxShadow: 'var(--card-shadow)' }}>
-        <h3 className="text-[16px] font-semibold text-tp">About</h3>
+      <section className="border border-bord bg-s1 p-7 crop-marks" style={{ boxShadow: 'var(--card-shadow)' }}>
+        <h3 className="font-serif text-[20px] font-semibold text-tp">About</h3>
         <p className="mt-2 text-[13.5px] leading-relaxed text-ts">
           Atelier is the reading room for your LearningHub — every mission, guide, playbook, and reference doc
           in the repo, loaded straight from the markdown on disk. Star what matters, track what's done, and tick
@@ -165,9 +193,12 @@ export default function App() {
           >
             <Menu size={20} />
           </button>
-          <h1 className="text-[20px] font-semibold tracking-[-0.015em] text-tp">
-            {reader ? 'Reading' : VIEW_TITLES[view]}
-          </h1>
+          <div className="min-w-0">
+            <div className="eyebrow leading-none">{reader ? 'Reading room' : 'Index'}</div>
+            <h1 className="mt-1 truncate font-serif text-[24px] font-semibold leading-none tracking-[-0.015em] text-tp">
+              {reader ? 'Reading' : VIEW_TITLES[view]}
+            </h1>
+          </div>
           <div className="ml-auto">
             <SearchInput
               value={query}
@@ -207,10 +238,11 @@ export default function App() {
                 />
               ) : grouped ? (
                 TRACKS.filter((t) => filtered.some((m) => m.track === t.id) && (track === 'all' || track === t.id)).map(
-                  (t) => (
+                  (t, i) => (
                     <TrackSection
                       key={t.id}
                       track={t}
+                      index={i}
                       items={filtered.filter((m) => m.track === t.id)}
                       onOpen={openMission}
                     />
@@ -257,15 +289,13 @@ export default function App() {
                       <button
                         key={item.id}
                         onClick={() => openRef(item)}
-                        className="flex w-full items-center gap-3 rounded-lg border border-bord bg-s1 px-4 py-2.5 text-left hover:translate-x-[2px] transition-all duration-150 cursor-pointer"
+                        className="crop-marks flex w-full items-center gap-3 border border-bord bg-s1 px-5 py-3 text-left hover:translate-x-[3px] transition-all duration-200 cursor-pointer"
                         style={{ boxShadow: 'var(--card-shadow)' }}
                       >
                         <BookMarked size={15} className="text-tm" />
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[14px] font-medium text-tp">{item.title}</span>
-                          <span className="block truncate text-[11px] uppercase tracking-[0.05em] text-tm">
-                            {item.path}
-                          </span>
+                          <span className="block truncate font-serif text-[16px] font-semibold text-tp">{item.title}</span>
+                          <span className="eyebrow block truncate">{item.path}</span>
                         </span>
                       </button>
                     ),
@@ -278,21 +308,20 @@ export default function App() {
               <p className="mb-5 text-[13px] text-ts">
                 Track overviews, platform manuals, and shared reference material.
               </p>
-              <div className="space-y-2.5">
-                {references.map((r) => (
+              <div className="stagger space-y-2">
+                {references.map((r, i) => (
                   <button
                     key={r.id}
                     onClick={() => openRef(r)}
-                    className="flex w-full items-center gap-3 rounded-lg border border-bord bg-s1 px-5 py-3 text-left hover:translate-x-[2px] active:scale-[0.995] transition-all duration-150 cursor-pointer"
-                    style={{ boxShadow: 'var(--card-shadow)' }}
+                    style={{ animationDelay: `${Math.min(i * 30, 400)}ms`, boxShadow: 'var(--card-shadow)' }}
+                    className="crop-marks group flex w-full items-center gap-4 border border-bord bg-s1 px-6 py-3.5 text-left hover:translate-x-[3px] active:scale-[0.997] transition-all duration-200 cursor-pointer"
                   >
-                    <BookMarked size={16} className="flex-none text-tm" />
+                    <span className="mono text-[11px] text-tm group-hover:text-accent">{String(i + 1).padStart(2, '0')}</span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[15px] font-medium text-tp">{r.title}</span>
-                      <span className="block truncate text-[11px] font-medium uppercase tracking-[0.05em] text-tm">
-                        {r.path}
-                      </span>
+                      <span className="block truncate font-serif text-[17px] font-semibold text-tp">{r.title}</span>
+                      <span className="eyebrow block truncate">{r.path}</span>
                     </span>
+                    <BookMarked size={15} className="flex-none text-tm" />
                   </button>
                 ))}
               </div>

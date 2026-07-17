@@ -12,7 +12,7 @@ export default function SearchInput({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search projects..."
-        className="w-[200px] rounded-lg border border-bord bg-s1 py-2 pl-9 pr-8 text-[13.5px] text-tp placeholder:text-tm transition-[width,border-color] duration-300 focus:w-[240px] focus:border-accent focus:outline-none md:w-[240px] md:focus:w-[280px]"
+        className="w-[200px] border border-bord bg-s1 py-2 pl-9 pr-8 text-[13.5px] text-tp placeholder:text-tm transition-[width,border-color] duration-300 focus:w-[240px] focus:border-accent focus:outline-none md:w-[240px] md:focus:w-[300px]"
       />
       {value && (
         <button
