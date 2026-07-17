@@ -3,13 +3,21 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { visit } from 'unist-util-visit';
-import { ArrowLeft, TerminalSquare, FolderOpen } from 'lucide-react';
+import { ArrowLeft, TerminalSquare, FolderOpen, FolderSymlink } from 'lucide-react';
 import { useAppState } from '../context/AppStateContext.jsx';
 import { startCommand } from '../lib/content.js';
 import { ProgressButton, StarButton } from './MissionCard.jsx';
 
 function copyText(text) {
   return navigator.clipboard.writeText(text);
+}
+
+// Ask the Vite dev server to reveal the folder in the OS file manager.
+function revealInExplorer(relPath) {
+  return fetch(`/__open?path=${encodeURIComponent(relPath)}`).then((r) => {
+    if (!r.ok) throw new Error('reveal failed');
+    return r.json();
+  });
 }
 
 /**
@@ -139,6 +147,16 @@ export default function Reader({ item, kind, initialTab, onBack }) {
               className="mono flex items-center gap-1.5 border border-bord bg-s1 px-3 py-2 text-[10px] uppercase tracking-[0.05em] text-ts hover:border-accent hover:text-accent cursor-pointer"
             >
               <TerminalSquare size={12} /> Copy start command
+            </button>
+            <button
+              onClick={() =>
+                revealInExplorer(item.path)
+                  .then(() => toast(`Opened ${item.path} in Explorer`))
+                  .catch(() => toast('Explorer opens only when launched via the dev server'))
+              }
+              className="mono flex items-center gap-1.5 border border-bord bg-s1 px-3 py-2 text-[10px] uppercase tracking-[0.05em] text-ts hover:border-accent hover:text-accent cursor-pointer"
+            >
+              <FolderSymlink size={12} /> Open in Explorer
             </button>
             <button
               onClick={() => copyText(item.path).then(() => toast(`Copied path ${item.path}`))}
