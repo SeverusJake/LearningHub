@@ -4,7 +4,7 @@
 
 **Goal:** Add a fixed top-right Previous/Next mission control that hides when the existing bottom pager enters view.
 
-**Architecture:** `App` supplies ordered-position metadata. `Reader` watches its bottom pager with `IntersectionObserver`, uses a tested pure visibility policy, and renders a compact fixed control using existing project tokens.
+**Architecture:** `App` supplies ordered-position metadata. `Reader` watches its bottom pager with `IntersectionObserver`, uses a tested pure visibility policy, and portals a compact fixed control to `document.body` so the reader entrance transform cannot offset it.
 
 **Tech Stack:** React 18, Vite 5, Tailwind CSS 3, Lucide React, Node built-in test runner
 
@@ -125,6 +125,8 @@ Attach `ref={bottomPagerRef}` to the existing bottom `<nav>`.
 
 - [ ] **Step 3: Render the fixed control**
 
+Import `createPortal` from `react-dom` and portal the fixed element to `document.body`.
+
 ```jsx
 const hasAdjacent = Boolean(prevItem || nextItem);
 const showFloatingPager = shouldShowFloatingPager({
@@ -133,8 +135,9 @@ const showFloatingPager = shouldShowFloatingPager({
   bottomPagerVisible,
 });
 
-{isMission && hasAdjacent && (
-  <nav
+{isMission && hasAdjacent && typeof document !== 'undefined' &&
+  createPortal(
+    <nav
     aria-label="Mission navigation"
     className={`fixed right-4 top-[76px] z-20 flex h-11 w-[220px] items-stretch border border-bord bg-s1 transition-opacity duration-150 md:right-8 ${
       showFloatingPager ? 'opacity-100' : 'pointer-events-none opacity-0'
@@ -163,8 +166,9 @@ const showFloatingPager = shouldShowFloatingPager({
     >
       <ChevronRight size={17} />
     </button>
-  </nav>
-)}
+    </nav>,
+    document.body,
+  )}
 ```
 
 - [ ] **Step 4: Run automated verification**

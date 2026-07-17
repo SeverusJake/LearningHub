@@ -221,6 +221,8 @@ export default function App() {
               onBack={() => setReader(null)}
               prevItem={prevItem}
               nextItem={nextItem}
+              itemIndex={readerIndex}
+              itemCount={readerList.length}
               onOpenItem={openAdjacent}
             />
           ) : view === 'missions' ? (

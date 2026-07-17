@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { visit } from 'unist-util-visit';
 import { ArrowLeft, TerminalSquare, FolderOpen, FolderSymlink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAppState } from '../context/AppStateContext.jsx';
+import { shouldShowFloatingPager } from '../lib/floatingPager.js';
 import { startCommand } from '../lib/content.js';
 import { ProgressButton, StarButton } from './MissionCard.jsx';
 
@@ -99,11 +101,23 @@ function MarkdownDoc({ docId, content }) {
 }
 
 /** Full reading view for a mission (tabs) or a reference doc (single). */
-export default function Reader({ item, kind, initialTab, onBack, prevItem, nextItem, onOpenItem }) {
+export default function Reader({
+  item,
+  kind,
+  initialTab,
+  onBack,
+  prevItem,
+  nextItem,
+  itemIndex,
+  itemCount,
+  onOpenItem,
+}) {
   const { toast, recordVisit } = useAppState();
   const isMission = kind === 'mission';
   const tabs = isMission ? item.docKeys : null;
   const [tab, setTab] = useState(initialTab && tabs?.includes(initialTab) ? initialTab : tabs?.[0]);
+  const bottomPagerRef = useRef(null);
+  const [bottomPagerVisible, setBottomPagerVisible] = useState(false);
 
   useEffect(() => {
     recordVisit(item.id, tab);
@@ -111,8 +125,26 @@ export default function Reader({ item, kind, initialTab, onBack, prevItem, nextI
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id, tab]);
 
+  useEffect(() => {
+    const bottomPager = bottomPagerRef.current;
+    if (!bottomPager || typeof IntersectionObserver === 'undefined') return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setBottomPagerVisible(entry.isIntersecting),
+      { threshold: 0.05 },
+    );
+    observer.observe(bottomPager);
+    return () => observer.disconnect();
+  }, [item.id]);
+
   const content = isMission ? item.docs[tab] : item.content;
   const docId = isMission ? `${item.id}:${tab}` : `ref:${item.id}`;
+  const hasAdjacent = Boolean(prevItem || nextItem);
+  const showFloatingPager = shouldShowFloatingPager({
+    isMission,
+    hasAdjacent,
+    bottomPagerVisible,
+  });
 
   return (
     <div className="view-enter mx-auto max-w-[860px]">
@@ -186,6 +218,42 @@ export default function Reader({ item, kind, initialTab, onBack, prevItem, nextI
         )}
       </div>
 
+      {/* Compact mission navigation stays available until the footer pager arrives. */}
+      {isMission && hasAdjacent && typeof document !== 'undefined' &&
+        createPortal(
+          <nav
+            aria-label="Mission navigation"
+            className={`fixed right-4 top-[76px] z-20 flex h-11 w-[220px] items-stretch border border-bord bg-s1 transition-opacity duration-150 md:right-8 ${
+              showFloatingPager ? 'opacity-100' : 'pointer-events-none opacity-0'
+            }`}
+            style={{ boxShadow: 'var(--card-shadow)' }}
+          >
+            <button
+              type="button"
+              onClick={() => onOpenItem(prevItem)}
+              disabled={!prevItem}
+              aria-label={prevItem ? `Previous mission: ${prevItem.title}` : 'No previous mission'}
+              className="grid w-11 flex-none place-items-center border-r border-bord text-tm hover:bg-s2 hover:text-tp disabled:cursor-default disabled:opacity-30"
+            >
+              <ChevronLeft size={17} />
+            </button>
+            <span className="mono flex min-w-0 flex-1 items-center justify-center truncate px-2 text-[11px] font-semibold text-tp">
+              {item.trackLabel} {item.num}
+              <span className="ml-1.5 text-tm">&middot; {itemIndex + 1}/{itemCount}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => onOpenItem(nextItem)}
+              disabled={!nextItem}
+              aria-label={nextItem ? `Next mission: ${nextItem.title}` : 'No next mission'}
+              className="grid w-11 flex-none place-items-center border-l border-bord text-tm hover:bg-s2 hover:text-tp disabled:cursor-default disabled:opacity-30"
+            >
+              <ChevronRight size={17} />
+            </button>
+          </nav>,
+          document.body,
+        )}
+
       {/* Document body on its own sheet of paper */}
       <div
         className="relative border border-bord bg-s1 px-7 py-10 md:px-12"
@@ -201,7 +269,7 @@ export default function Reader({ item, kind, initialTab, onBack, prevItem, nextI
 
       {/* Prev / Next pager */}
       {(prevItem || nextItem) && (
-        <nav className="mt-6 grid grid-cols-2 gap-3">
+        <nav ref={bottomPagerRef} className="mt-6 grid grid-cols-2 gap-3">
           {prevItem ? (
             <button
               onClick={() => onOpenItem(prevItem)}

@@ -26,6 +26,7 @@ Add a compact Previous/Next control to the top-right of mission reader pages. It
 
 - `App.jsx` passes the current mission index and total mission count into `Reader`.
 - `Reader.jsx` observes the existing bottom pager with `IntersectionObserver` and owns the visibility state for the fixed control.
+- The fixed control renders into `document.body` with a React portal so the reader's entrance transform cannot become its fixed-position containing block.
 - A small pure helper defines the visibility rule so it can be verified with Node's built-in test runner without adding a test framework.
 
 ## Verification
@@ -33,4 +34,3 @@ Add a compact Previous/Next control to the top-right of mission reader pages. It
 - Unit tests cover visible, hidden-at-bottom, and no-adjacent-item states.
 - Production build verifies React and Tailwind compilation.
 - Browser checks verify fixed positioning, navigation, disabled boundary arrows, responsive placement, and hiding when the bottom pager becomes visible.
-
